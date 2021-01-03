@@ -3,7 +3,7 @@ const app = express();
 const data = require('./data');
 
 
-// Verbos HTTP 
+// Verbs HTTP 
 
 // GET  Receber dados de um Resource.
 // POST Enviar dados ou informações para serem processados por um Resource.
