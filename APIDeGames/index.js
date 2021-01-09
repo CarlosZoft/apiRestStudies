@@ -53,6 +53,46 @@ app.get("/game/:id",(req,res)=>{
     }
 })
 
+app.post("/game", (req,res) => {
+     
+    var {title,price,year} = req.body;
+    if(title != undefined && price != undefined && year != undefined){
+        
+        DB.games.push({
+            id: 4237,
+            title,
+            year,
+            price
+        }
+        );
+        res.statusCode = 200;
+        res.sendStatus = (200);
+    }
+    else{
+        res.statusCode = 406;
+        res.sendStatus(406);
+    }
+})
+
+app.delete("/game/:id", (req, res)=>{
+    if(isNaN(req.params.id)){
+        res.statusCode = 400;
+        res.sendStatus(400);
+    }
+    else{
+        var id = parseInt(req.params.id);
+        const index = DB.games.findIndex(game => game.id === id);
+        if(index < 0){
+            res.statusCode = 404;
+            res.sendStatus(404);
+        }
+        else{
+            DB.games.splice(index, 1);
+            res.sendStatus(200);
+        }
+    }
+})
+
 
 app.listen(3000, ()=>{
     console.log("App runing...");
