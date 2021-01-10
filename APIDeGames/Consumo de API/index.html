@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Games</title>
+    <hr>
+    <h3>Lista de Games</h3>
+    <a href="file:///C:/Users/carlo/apiRestStudies/APIDeGames/Consumo%20de%20API/index.html"><button>Atualizar</button></a>
+    <ul id="games"></ul>
+    <hr>
+    <h3>Adicionar Game</h3>
+    <input type="text" name="title" id="title" placeholder="Nome do jogo"><br>
+    <input type="number" name="year" id="year" placeholder="ano de lançamento"><br>
+    <input type="number" name="price" id="price" placeholder="preco"><br>
+    <button type="submit" onClick="createGame()" >Criar</button><hr>
+    
+</head>
+<body>
+    
+</body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script >
+    function createGame (){
+        var titleGame = document.querySelector('#title');
+        var yearGame = document.querySelector('#year');
+        var priceGame = document.querySelector('#price');
+
+        var create = {
+            title: titleGame.value,
+            year: yearGame.value,
+            price: priceGame.value
+        }
+        axios.post("http://localhost:3000/game", create)
+            .then(res => {
+                if(Response.status == 200){
+                    console.log("Game Cadastrado!")
+                }
+                else {
+                    console.log("Não foi possivel cadastrar");
+                }
+            }).catch(err => console.log(err))
+    }
+    axios.get("http://localhost:3000/games").then(res => {
+        var games = res.data;
+        var list = document.querySelector('#games');
+        
+        games.forEach(game => {
+            var item = document.createElement("li");
+            item.innerHTML = game.title + " - " + game.year + " - $ " + game.price; 
+            list.appendChild(item);
+        })
+})
+</script>
+</html>
