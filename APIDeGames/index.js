@@ -115,7 +115,7 @@ app.put("/game/:id", (req,res)=>{
                 game.year = year;
             }
             res.sendStatus(200);
-            res.statusCode(200);
+            res.statusCode = 200;
         }
         else{
             res.statusCode = 404;
