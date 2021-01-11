@@ -28,6 +28,20 @@ var DB = {
             year: 2018,
             price: 30
         }
+    ],
+    users : [
+        {
+            id : 1,
+            nome : "Carlos Rafael",
+            email : "carlosoftwar@gmail.com",
+            password : "nodemonstart1"
+        },
+        {
+            id : 2,
+            name : "Rafael Carlos",
+            email : "carlosk2gunn@gmail.com",
+            password : "nodemonstart2"
+        }
     ]
 
 }
@@ -126,6 +140,33 @@ app.put("/game/:id", (req,res)=>{
 
 })
 
+app.post("/auth", (req,res)=>{
+    var {email,password} = req.body;
+
+    if(email != undefined || password != undefined){
+
+       var user = DB.users.find(user => user.email == email);
+
+       if(user != undefined){
+        if(user.password == password){
+            res.status(200);
+            res.json({token : "Token Falso"})
+         }
+         else{
+            res.status(401);
+             res.json("Password incorreta");
+         }
+       }
+       else{
+          res.status(404);
+          res.json("Email incorreto")
+       }
+    }
+    else{
+        res.status(400);
+        res.json({err : "E-mail/Password inválido"})
+    }
+})
 
 
 
