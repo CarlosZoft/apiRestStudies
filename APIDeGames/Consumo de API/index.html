@@ -3,29 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./public/css/bootstrap.min.css">
     <title>Loja de Games</title>
-    <hr>
-    <h3>Lista de Games</h3>
-    <a href="file:///C:/Users/carlo/apiRestStudies/APIDeGames/Consumo%20de%20API/index.html"><button>Atualizar</button></a>
-    <ul id="games"></ul>
-    <hr>
-    <h3>Adicionar Game</h3>
-    <input type="text" name="title" id="title" placeholder="Nome do jogo"><br>
-    <input type="number" name="year" id="year" placeholder="ano de lançamento"><br>
-    <input type="number" name="price" id="price" placeholder="preco"><br>
-    <button type="submit" onClick="createGame()" >Criar</button><hr>
-    <h3>Editar Game</h3>
-    <input type="text" name="idEdit" id="idEdit" placeholder="ID"><br>
-    <input type="text" name="titleEdit" id="titleEdit" placeholder="Nome do jogo"><br>
-    <input type="number" name="yearEdit" id="yearEdit" placeholder="ano de lançamento"><br>
-    <input type="number" name="priceEdit" id="priceEdit" placeholder="preco"><br>
-    <button type="submit" onClick="atualizarEditar()">Atualizar</button><hr>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <label>E-mail :</label>
+                <input class ="form-control" type="email" id="email" placeholder="fulano@games.com" />
+                <label>Password :</label>
+                <input class ="form-control" type="password" id="password" placeholder="******" /><br>
+                <button class="btn btn-success" onclick="login()" type="submit">Entrar</button><br>
+            </div>
+            <div class="card-body">
+                <h3>Lista de Games</h3>
+                <a class="btn btn-primary" href="file:///C:/Users/carlo/apiRestStudies/APIDeGames/Consumo%20de%20API/index.html">Atualizar</a><br><br>
+                <ul id="games" class="list-group"></ul>
+            </div>        
+            <div class="card-body">  
+                <h3>Adicionar Game</h3>
+                <div class="form-group">
+                    <input class ="form-control" type="text" name="title" id="title" placeholder="Nome do jogo"><br>
+                    <input class ="form-control" type="number" name="year" id="year" placeholder="ano de lançamento"><br>
+                    <input class ="form-control" type="number" name="price" id="price" placeholder="preco"><br><br>
+                    <button type="submit" class="btn btn-primary" onClick="createGame()" >Criar</button>
+                </div>
+            </div>
+            <div class="card-footer">
+                <h3>Editar Game</h3>
+                <input class ="form-control" type="text" name="idEdit" id="idEdit" placeholder="ID"><br>
+                <input class ="form-control" type="text" name="titleEdit" id="titleEdit" placeholder="Nome do jogo"><br>
+                <input class ="form-control" type="number" name="yearEdit" id="yearEdit" placeholder="ano de lançamento"><br>
+                <input class ="form-control" type="number" name="priceEdit" id="priceEdit" placeholder="preco"><br><br>
+                <button type="submit" class="btn btn-primary" onClick="atualizarEditar()">Atualizar</button>
+            </div>
+        </div>
+    </div>
 </head>
 <body>
     
 </body>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script >
+
+    function login(){
+        var email = document.getElementById("email").value;
+        var password = document.getElementById("password").value;
+
+        axios.post("http://localhost:3000/auth",{email,password})
+        .then(res =>{
+            var token = res.data.token;
+            localStorage.setItem("token", token);
+            axiosConfig.headers.authorization = "Bearer " + localStorage.getItem("token");
+        })
+        .catch(err => alert("login failed"));
+
+    }
+    axiosConfig = {
+        headers: {
+            authorization: "Bearer " + localStorage.getItem("token")
+        }
+    }
+
     function getElement(item){
         var id = item.getAttribute("data-id");
         var title = item.getAttribute("data-title");
@@ -50,7 +88,7 @@
             price: priceGame.value
         }
         id = idInput.value;
-        axios.put("http://localhost:3000/game/"+id, att)
+        axios.put("http://localhost:3000/game/"+id, att, axiosConfig)
             .then(res => {
                 if(res.status == 200){
                     console.log("Game Atualizado!")
@@ -66,7 +104,7 @@
 
         var id = item.getAttribute("data-id")
         console.log(id)
-        axios.delete("http://localhost:3000/game/"+id)
+        axios.delete("http://localhost:3000/game/"+id, axiosConfig)
         .then(res => {
             if(res.status == 200){
                 console.log("Excluido com sucesso")
@@ -88,7 +126,7 @@
             year: yearGame.value,
             price: priceGame.value
         }
-        axios.post("http://localhost:3000/game", create)
+        axios.post("http://localhost:3000/game", create, axiosConfig)
             .then(res => {
                 if(res.status == 200){
                     console.log("Game Cadastrado!")
@@ -99,12 +137,13 @@
             }).catch(err => console.log(err))
     }
 
-    axios.get("http://localhost:3000/games").then(res => {
+    axios.get("http://localhost:3000/games", axiosConfig).then(res => {
         var games = res.data;
         var list = document.querySelector('#games');
         
         games.forEach(game => {
             var item = document.createElement("li");
+            item.className = "list-group-item";
             item.setAttribute("data-id", game.id);
             item.setAttribute("data-title", game.title);
             item.setAttribute("data-year", game.year);
@@ -113,19 +152,27 @@
             item.innerHTML = game.title + " - " + game.year + " - $ " + game.price; 
             
             var deleteBtn = document.createElement("button");
+            deleteBtn.className = "btn btn-warning"
             deleteBtn.innerHTML = "Deletar";
-
+             
             deleteBtn.addEventListener("click", () => deleteGame(item));
 
+            var space = document.createElement("br");
+
             var editBtn = document.createElement("button");
+            editBtn.className = "btn btn-info";
             editBtn.innerHTML = "Editar";
 
             editBtn.addEventListener("click", () => getElement(item))
-
+            
+            item.appendChild(space);
             item.appendChild(editBtn);
             item.appendChild(deleteBtn);
             list.appendChild(item);
+            
         })
 })
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
 </html>
