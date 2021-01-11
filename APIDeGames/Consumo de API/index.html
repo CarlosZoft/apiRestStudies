@@ -14,13 +14,70 @@
     <input type="number" name="year" id="year" placeholder="ano de lançamento"><br>
     <input type="number" name="price" id="price" placeholder="preco"><br>
     <button type="submit" onClick="createGame()" >Criar</button><hr>
-    
+    <h3>Editar Game</h3>
+    <input type="text" name="idEdit" id="idEdit" placeholder="ID"><br>
+    <input type="text" name="titleEdit" id="titleEdit" placeholder="Nome do jogo"><br>
+    <input type="number" name="yearEdit" id="yearEdit" placeholder="ano de lançamento"><br>
+    <input type="number" name="priceEdit" id="priceEdit" placeholder="preco"><br>
+    <button type="submit" onClick="atualizarEditar()">Atualizar</button><hr>
 </head>
 <body>
     
 </body>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script >
+    function getElement(item){
+        var id = item.getAttribute("data-id");
+        var title = item.getAttribute("data-title");
+        var year = item.getAttribute("data-year");
+        var price = item.getAttribute("data-price");
+
+        document.getElementById("idEdit").value = id;
+        document.getElementById("titleEdit").value = title;
+        document.getElementById("yearEdit").value = year;
+        document.getElementById("priceEdit").value = price;
+    }
+
+    function atualizarEditar(){
+        var idInput = document.querySelector('#idEdit');
+        var titleGame = document.querySelector('#titleEdit');
+        var yearGame = document.querySelector('#yearEdit');
+        var priceGame = document.querySelector('#priceEdit');
+
+        var att = {
+            title: titleGame.value,
+            year: yearGame.value,
+            price: priceGame.value
+        }
+        id = idInput.value;
+        axios.put("http://localhost:3000/game/"+id, att)
+            .then(res => {
+                if(res.status == 200){
+                    console.log("Game Atualizado!")
+                }
+                else {
+                    console.log("Não foi possivel atualizar");
+                }
+            }).catch(err => console.log(err))
+    }
+
+    
+    function deleteGame(item){
+
+        var id = item.getAttribute("data-id")
+        console.log(id)
+        axios.delete("http://localhost:3000/game/"+id)
+        .then(res => {
+            if(res.status == 200){
+                console.log("Excluido com sucesso")
+            }
+            else{
+                console.log("Não foi possivel excluir")
+            }
+        })
+        .catch(err => console.log(err.sendStatus))
+
+    }
     function createGame (){
         var titleGame = document.querySelector('#title');
         var yearGame = document.querySelector('#year');
@@ -33,7 +90,7 @@
         }
         axios.post("http://localhost:3000/game", create)
             .then(res => {
-                if(Response.status == 200){
+                if(res.status == 200){
                     console.log("Game Cadastrado!")
                 }
                 else {
@@ -41,13 +98,32 @@
                 }
             }).catch(err => console.log(err))
     }
+
     axios.get("http://localhost:3000/games").then(res => {
         var games = res.data;
         var list = document.querySelector('#games');
         
         games.forEach(game => {
             var item = document.createElement("li");
+            item.setAttribute("data-id", game.id);
+            item.setAttribute("data-title", game.title);
+            item.setAttribute("data-year", game.year);
+            item.setAttribute("data-price", game.price);
+
             item.innerHTML = game.title + " - " + game.year + " - $ " + game.price; 
+            
+            var deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = "Deletar";
+
+            deleteBtn.addEventListener("click", () => deleteGame(item));
+
+            var editBtn = document.createElement("button");
+            editBtn.innerHTML = "Editar";
+
+            editBtn.addEventListener("click", () => getElement(item))
+
+            item.appendChild(editBtn);
+            item.appendChild(deleteBtn);
             list.appendChild(item);
         })
 })
