@@ -75,9 +75,26 @@ var DB = {
 
 }
 app.get("/games",authenticate,(req,res)=>{
-    
+    var HATEOAS = [
+        {
+            href: "http://localhost:3000/game/id",
+            method: "DELETE",
+            rel: "delete_game"
+        },
+        {
+            href: "http://localhost:3000/game/id",
+            method: "GET",
+            rel: "get_game"
+        },
+        {
+            href: "http://localhost:3000/auth",
+            method: "POST",
+            rel: "login"
+        }
+        
+    ]
     res.statusCode = 200;
-    res.json(DB.games);
+    res.json({Games: DB.games, _links : HATEOAS});
 
 });
 app.get("/game/:id",authenticate,(req,res)=>{
@@ -87,10 +104,33 @@ app.get("/game/:id",authenticate,(req,res)=>{
     }
     else{
         var id = parseInt(req.params.id);
+        var HATEOAS = [
+            {
+                href: "http://localhost:3000/game/"+id,
+                method: "DELETE",
+                rel: "delete_game"
+            },
+            {
+                href: "http://localhost:3000/game/"+id,
+                method: "PUT",
+                rel: "edit_game"
+            }, 
+            {
+                href: "http://localhost:3000/game/"+id,
+                method: "GET",
+                rel: "get_game"
+            },
+            {
+                href: "http://localhost:3000/auth",
+                method: "POST",
+                rel: "login"
+            }
+            
+        ]
         const game = DB.games.find(game => game.id == id);
         if(game != undefined) {
             res.statusCode = 200;
-            res.json(game);
+            res.json({game:game, _link: HATEOAS});
         }
         else{
             res.statusCode = 404;
